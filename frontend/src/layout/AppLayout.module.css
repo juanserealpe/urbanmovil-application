@@ -1,0 +1,23 @@
+.navbar {
+  background-color: #fff;
+  border-right: 1px solid var(--mantine-color-default-border);
+}
+
+.link {
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-text);
+  font-weight: 500;
+}
+
+.link[data-active] {
+  background-color: #e4ebfc;
+  color: var(--mantine-color-urbano-6);
+}
+
+.link[data-active]:hover {
+  background-color: #d6e0fa;
+}
+
+.main {
+  min-width: 0;
+}
