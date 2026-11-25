@@ -6,6 +6,7 @@ Sistema de gestión de rutas y buses urbanos.
 | --- | --- |
 | [backend/](backend/) | API REST en Kotlin + Spring Boot + PostgreSQL. Ver [backend/README.md](backend/README.md) |
 | [frontend/](frontend/) | Panel web del administrador (pendiente) |
+| [mobile/](mobile/) | App móvil del pasajero en Kotlin Multiplatform (Android). Ver [mobile/README.md](mobile/README.md) |
 | [FRONTEND-API.md](FRONTEND-API.md) | Contrato de la API para el frontend: endpoints, tipos y errores |
 
 ## Arranque rápido del backend

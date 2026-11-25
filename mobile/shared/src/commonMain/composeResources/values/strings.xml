@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_nombre">UrbanMovil</string>
+    <string name="logo_descripcion">Logo de UrbanMovil</string>
+
+    <!-- Login (HU-17) -->
+    <string name="login_lema">Tu bus en Popayán, sin adivinar</string>
+    <string name="login_correo">Correo</string>
+    <string name="login_clave">Contraseña</string>
+    <string name="login_ingresar">Ingresar</string>
+    <string name="login_crear_cuenta">Crear cuenta</string>
+    <string name="login_credenciales_invalidas">Credenciales inválidas</string>
+    <string name="aviso_prototipo">Prototipo: el acceso es de demostración</string>
+
+    <!-- Barra inferior -->
+    <string name="tab_rutas">Rutas</string>
+    <string name="tab_cuando_pasa">Cuándo pasa</string>
+    <string name="tab_buscar">Buscar viaje</string>
+    <string name="tab_perfil">Perfil</string>
+
+
+    <!-- Mapa (Fase 2) -->
+    <string name="mapa_rutas_descripcion">Mapa de las rutas de Popayán</string>
+    <string name="mapa_ruta_descripcion">Mapa de la ruta %1$s</string>
+    <string name="mapa_desactualizado">Desactualizado</string>
+    <string name="mapa_mi_ubicacion">Mi ubicación</string>
+    <string name="mapa_bus_reciente">Bus %1$s, ubicación reciente</string>
+    <string name="mapa_bus_desactualizado">Bus %1$s, ubicación desactualizada</string>
+    <string name="mapa_pin_inicio">Inicio del recorrido</string>
+    <string name="mapa_pin_final">Final del recorrido</string>
+
+    <!-- Pestaña Rutas (HU-18) -->
+    <string name="rutas_titulo">Rutas</string>
+    <plurals name="rutas_subtitulo">
+        <item quantity="one">%1$d ruta · datos de demostración</item>
+        <item quantity="other">%1$d rutas · datos de demostración</item>
+    </plurals>
+    <string name="rutas_vacio">No hay rutas disponibles</string>
+    <string name="rutas_sin_buses">Sin buses activos</string>
+    <plurals name="rutas_buses_activos">
+        <item quantity="one">%1$d bus activo</item>
+        <item quantity="other">%1$d buses activos</item>
+    </plurals>
+    <string name="rutas_centrar">Centrar en mi ubicación</string>
+    <string name="rutas_abrir_detalle">Ver detalle de la ruta</string>
+
+    <!-- Detalle de ruta (HU-18, HU-19, HU-24) -->
+    <string name="detalle_titulo">%1$s · %2$s</string>
+    <string name="detalle_subtitulo_sin_alternos">Recorrido principal</string>
+    <plurals name="detalle_subtitulo_alternos">
+        <item quantity="one">Recorrido principal + %1$d alterno</item>
+        <item quantity="other">Recorrido principal + %1$d alternos</item>
+    </plurals>
+    <string name="detalle_volver">Volver</string>
+    <string name="detalle_ruta_no_encontrada">No encontramos esta ruta</string>
+    <string name="leyenda_principal">Recorrido principal</string>
+    <string name="leyenda_alterno">Camino alterno</string>
+    <string name="detalle_buses_titulo">Buses en recorrido</string>
+    <string name="detalle_sin_buses">No hay buses activos en esta ruta</string>
+
+    <!-- Bus (HU-19, HU-24) -->
+    <string name="bus_codigo">Bus %1$s</string>
+    <string name="bus_ruta">Ruta %1$s · %2$s</string>
+    <string name="vigencia_reciente">Ubicación reciente</string>
+    <string name="vigencia_desactualizada">Desactualizada</string>
+    <string name="bus_ultima_ubicacion">Última ubicación: %1$s (%2$s)</string>
+    <string name="ocupacion_con_puestos">Con puestos</string>
+    <string name="ocupacion_solo_de_pie">Solo de pie</string>
+    <string name="ocupacion_lleno">Lleno</string>
+    <string name="ocupacion_reportada">Reportado hace %1$d min</string>
+    <string name="ocupacion_aviso">Dato aproximado, no 100 % confiable</string>
+    <string name="ocupacion_sin_info">Sin información de ocupación</string>
+    <string name="tarjeta_cerrar">Cerrar</string>
+
+    <!-- ¿Cuándo pasa? (HU-20) -->
+    <string name="cuando_titulo">¿Cuándo pasa?</string>
+    <string name="cuando_subtitulo">Toque el mapa para mover el punto</string>
+    <string name="cuando_subtitulo_mi_ubicacion">Desde mi ubicación · active «Punto en el mapa» para moverlo</string>
+    <string name="cuando_mapa_descripcion">Mapa para elegir el punto de consulta</string>
+    <string name="cuando_mi_ubicacion">Mi ubicación</string>
+    <string name="cuando_punto_mapa">Punto en el mapa</string>
+    <string name="cuando_pin_p">Punto de consulta</string>
+    <string name="cuando_punto_recorrido">Punto más cercano de la ruta %1$s</string>
+    <string name="cuando_lista_titulo">Próximo bus por este punto</string>
+    <string name="cuando_nota">Tiempos aproximados</string>
+    <string name="cuando_min">~%1$d min</string>
+    <string name="cuando_pasa_por_lugar">Pasa por %1$s · a %2$d m</string>
+    <string name="cuando_pasa_por_punto">Punto del recorrido a %1$d m</string>
+    <string name="cuando_sin_bus">Sin bus próximo</string>
+    <string name="cuando_sin_bus_uno_paso">El único bus activo ya pasó</string>
+    <string name="cuando_sin_bus_todos_pasaron">Los buses activos ya pasaron</string>
+    <string name="cuando_sin_bus_sin_reciente">No hay buses con ubicación reciente</string>
+    <string name="cuando_lejos">Lejos de la ruta</string>
+    <string name="cuando_lejos_detalle">La ruta pasa a más de %1$d m</string>
+    <string name="cuando_a11y_llega">Ruta %1$s, llega en %2$d minutos aproximadamente</string>
+    <string name="cuando_a11y_sin_bus">Ruta %1$s, sin bus próximo. %2$s</string>
+    <string name="cuando_a11y_lejos">Ruta %1$s, lejos de la ruta</string>
+
+    <!-- Buscar viaje (HU-21, HU-22) -->
+    <string name="buscar_titulo">Buscar viaje</string>
+    <string name="buscar_subtitulo">Sin transbordos · máx. %1$d m a pie</string>
+    <string name="buscar_origen">Origen</string>
+    <string name="buscar_destino">Destino</string>
+    <string name="buscar_intercambiar">Intercambiar origen y destino</string>
+    <string name="buscar_mi_ubicacion">Mi ubicación</string>
+    <string name="buscar_punto_mapa">Punto elegido en el mapa</string>
+    <string name="buscar_elegir_mapa">Elegir en el mapa</string>
+    <string name="buscar_elegir_titulo_origen">Elija el origen</string>
+    <string name="buscar_elegir_titulo_destino">Elija el destino</string>
+    <string name="buscar_mapa_instruccion">Toque el mapa para fijar el punto</string>
+    <string name="buscar_mapa_descripcion">Mapa para elegir un punto</string>
+    <string name="buscar_cancelar">Cancelar</string>
+    <plurals name="buscar_resultado_titulo">
+        <item quantity="one">%1$d ruta le sirve</item>
+        <item quantity="other">%1$d rutas le sirven</item>
+    </plurals>
+    <string name="buscar_orden_nota">Ordenadas por caminata</string>
+    <string name="buscar_caminatas">Camina %1$d m al abordaje · %2$d m desde el descenso</string>
+    <string name="buscar_menos_caminata">Menos caminata</string>
+    <string name="buscar_llega_en">Llega en ~%1$d min</string>
+    <string name="buscar_trayecto">Trayecto ~%1$d min</string>
+    <string name="buscar_sin_rutas">No hay rutas que conecten estos puntos</string>
+    <string name="buscar_puntos_iguales">Elija un origen y un destino distintos</string>
+    <string name="buscar_nota_pie">Los tiempos son aproximados y no cambian el orden de la lista</string>
+    <string name="buscar_a11y_opcion">Ruta %1$s, %2$s. %3$s. Trayecto %4$d minutos</string>
+    <string name="buscar_a11y_llega">llega en %1$d minutos aproximadamente</string>
+    <string name="buscar_a11y_sin_bus">sin bus próximo</string>
+    <string name="buscar_abrir_guia">Ver la guía de esta opción</string>
+
+    <!-- Guía (HU-23) -->
+    <string name="guia_titulo">Guía · %1$s</string>
+    <string name="guia_hacia">Hacia %1$s</string>
+    <string name="guia_mapa_descripcion">Mapa del viaje en la ruta %1$s</string>
+    <string name="guia_bus_llega">Bus llega en ~%1$d min</string>
+    <string name="guia_paso1">Camine %1$d m hasta A</string>
+    <string name="guia_paso2">Tome la %1$s %2$s</string>
+    <string name="guia_paso2_detalle">Bájese en B</string>
+    <string name="guia_paso2_detalle_lugar">Bájese en B, cerca de %1$s</string>
+    <string name="guia_paso3">Camine %1$d m hasta su destino</string>
+    <string name="guia_punto_recorrido">Punto del recorrido de la %1$s</string>
+    <string name="guia_cerca_de">Cerca de %1$s</string>
+    <string name="guia_otras_opciones">Ver otras opciones</string>
+    <string name="guia_no_disponible">Esta opción ya no está disponible para la búsqueda actual</string>
+    <string name="guia_pin_origen">Origen del viaje</string>
+    <string name="guia_pin_a">A, punto de abordaje</string>
+    <string name="guia_pin_b">B, punto de descenso</string>
+    <string name="guia_pin_d">D, destino</string>
+    <string name="guia_destino_mapa">el punto elegido en el mapa</string>
+    <string name="guia_destino_mi_ubicacion">mi ubicación</string>
+
+    <!-- Control debug del reloj simulado (solo build debug) -->
+    <string name="debug_adelantar_reloj">Adelantar el reloj simulado %1$d minutos</string>
+    <string name="debug_reloj">Reloj demo +%1$d min · tocar para reiniciar</string>
+
+    <!-- Perfil -->
+    <string name="perfil_titulo">Perfil</string>
+    <string name="perfil_cerrar_sesion">Cerrar sesión</string>
+    <string name="perfil_compilacion_debug">Compilación de depuración</string>
+</resources>

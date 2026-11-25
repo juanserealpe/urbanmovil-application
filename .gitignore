@@ -1,5 +1,5 @@
 # Reglas comunes a todo el repositorio.
-# Cada proyecto (backend/, frontend/) tiene además su propio .gitignore.
+# Cada proyecto (backend/, frontend/, mobile/) tiene además su propio .gitignore.
 
 ### Secretos y variables de entorno ###
 .env

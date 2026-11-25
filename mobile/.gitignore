@@ -1,0 +1,63 @@
+# ------------------------------------------------------------------ Gradle / Kotlin
+.gradle/
+.kotlin/
+**/build/
+# Carpetas «build» que sí son código fuente (p. ej. un paquete llamado build).
+!src/**/build/
+# El wrapper SÍ se sube: permite compilar sin instalar Gradle.
+!gradle/wrapper/gradle-wrapper.jar
+
+# ------------------------------------------------------------------ Configuración local (NUNCA subir)
+# Ruta del SDK de cada máquina.
+local.properties
+# Variables de entorno y secretos.
+.env
+.env.*
+*.secrets
+secrets.properties
+
+# ------------------------------------------------------------------ Firma y artefactos de Android
+# Llaves de firma: si se filtran, cualquiera puede publicar actualizaciones como si fuera la app.
+*.jks
+*.keystore
+keystore.properties
+# APK / AAB generados (se reconstruyen con ./gradlew :androidApp:assembleDebug).
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+# Datos de Android Studio y NDK.
+captures/
+.externalNativeBuild/
+.cxx/
+*.hprof
+
+# ------------------------------------------------------------------ IDEs y editores
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.fleet/
+*.swp
+*~
+
+# ------------------------------------------------------------------ Agentes de IA (configuración personal)
+.claude/settings.local.json
+.atl/
+
+# ------------------------------------------------------------------ Sistema operativo
+.DS_Store
+Thumbs.db
+
+# ------------------------------------------------------------------ Kotlin Multiplatform: futuros targets iOS / Web
+xcuserdata/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+node_modules/
+kotlin-js-store/
