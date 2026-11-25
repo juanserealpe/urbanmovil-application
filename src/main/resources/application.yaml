@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: urbanmovil-api
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate        # el esquema lo maneja Flyway, nunca Hibernate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  docker:
+    compose:
+      lifecycle-management: start-only   # no apagar la BD al detener la app
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+      timeout: 8h
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+urbanmovil:
+  zona-horaria: America/Bogota
+  admin-inicial:
+    nombre: ${ADMIN_NOMBRE:Administrador}
+    correo: ${ADMIN_CORREO:admin@urbanmovil.co}
+    contrasena: ${ADMIN_CONTRASENA:Admin12345}
+  cors:
+    origenes: ${CORS_ORIGENES:http://localhost:5173}
+  demo:
+    habilitado: false            # true en el perfil demo (Fase 3 usa esto)
+  simulacion:
+    velocidad-kmh: 18          # velocidad del bus simulado en el monitoreo (HU-31)

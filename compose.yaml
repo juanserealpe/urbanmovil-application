@@ -1,0 +1,18 @@
+# Nombre fijo del proyecto: así el contenedor y el volumen no dependen del nombre de la carpeta.
+name: urbanmovil-api
+
+services:
+  postgres:
+    image: 'postgres:18'
+    environment:
+      - 'POSTGRES_DB=urbanmovil'
+      - 'POSTGRES_USER=urbanmovil'
+      - 'POSTGRES_PASSWORD=urbanmovil'
+    ports:
+      - '5432:5432'
+    volumes:
+      # PostgreSQL 18+ guarda los datos en /var/lib/postgresql/<versión>/docker
+      - 'urbanmovil-pgdata:/var/lib/postgresql'
+
+volumes:
+  urbanmovil-pgdata:
