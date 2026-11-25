@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@geoman-io/maplibre-geoman-free": "^0.10.10",
     "@hookform/resolvers": "^7.0.9",
     "@mantine/core": "^9.8.2",
     "@mantine/dates": "^9.8.2",

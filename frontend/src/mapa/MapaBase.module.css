@@ -1,0 +1,85 @@
+.contenedor {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ---------- Marcadores ---------- */
+
+/* Pin con letra (I / F). El ancla es 'bottom': la punta queda sobre el punto. */
+.pin {
+  z-index: 3;
+  width: 30px;
+  height: 38px;
+  display: flex;
+  justify-content: center;
+  cursor: default;
+}
+
+.pin[data-arrastrable] {
+  cursor: grab;
+}
+
+.pinCabeza {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 35%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pinLetra {
+  transform: rotate(45deg);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.vertice {
+  z-index: 2;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+}
+
+.vertice[data-arrastrable] {
+  cursor: grab;
+}
+
+/* Área de toque más grande que el círculo visible. */
+.vertice[data-arrastrable]::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+}
+
+.bus {
+  z-index: 4;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 35%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.pin:focus-visible,
+.vertice:focus-visible,
+.bus:focus-visible {
+  outline: 3px solid #1f4fd8;
+  outline-offset: 2px;
+}

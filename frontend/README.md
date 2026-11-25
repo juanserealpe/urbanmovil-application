@@ -2,7 +2,16 @@
 
 Frontend del panel de administración (épica EP-01). React + TypeScript (Vite), Mantine, React Query, react-hook-form + zod.
 
-Estado actual: **Fase 1** — base del proyecto, login, menú lateral, conductores y vehículos (HU-01, HU-06, HU-07, HU-08, HU-28, HU-29, HU-30). Rutas, programación y monitoreo muestran una página provisional hasta las fases 2 y 3.
+Estado actual: **Fase 2** — Fase 1 (login, menú, conductores y vehículos: HU-01, HU-06, HU-07, HU-08, HU-28, HU-29, HU-30) más rutas con editor sobre mapa (HU-02, HU-03, HU-04, HU-05). Programación y monitoreo muestran una página provisional hasta la fase 3.
+
+### Pantallas
+
+| Ruta | Pantalla |
+| --- | --- |
+| `/` | Redirige a `/rutas` |
+| `/rutas` | Lista de rutas con buscador, vista previa en mapa y eliminación (mockup 02) |
+| `/rutas/nueva` · `/rutas/:id` | Editor de ruta: datos, trazado del recorrido principal y de los caminos alternos (mockup 03) |
+| `/conductores` · `/vehiculos` | Fase 1 |
 
 ## Requisitos
 
@@ -57,9 +66,12 @@ src/
 ├─ auth/            // useSesion, RequireAuth, EscuchaSesionExpirada, LoginPage
 ├─ layout/          // AppLayout: menú lateral (AppShell + Burger en móvil)
 ├─ components/      // piezas reutilizables: chips, encabezado, estado vacío, confirmación…
+├─ mapa/           // MapaBase (MapLibre), coordenadas.ts (lat/lng ↔ [lng, lat]), marcadores, config
 ├─ features/
 │  ├─ conductores/  // ConductoresPage, ConductorForm (drawer), DisponibilidadModal, hooks
-│  └─ vehiculos/    // VehiculosPage, VehiculoForm (drawer), DesactivarModal, hooks
+│  ├─ vehiculos/    // VehiculosPage, VehiculoForm (drawer), DesactivarModal, hooks
+│  └─ rutas/        // RutasPage, VistaPreviaRuta, hooks, dibujoRuta, constantes
+│     └─ editor/    // EditorRutaPage, trazado.ts (reducer), validacion.ts (zod + errores), barra y tarjetas
 └─ utils/           // errores.ts, fechas.ts, motivos.ts, contrasena.ts
 ```
 
@@ -67,7 +79,10 @@ Decisiones clave:
 
 - **Errores de la API**: `utils/errores.ts → manejarErrorFormulario` reparte `campos` bajo cada input; lo que no es de un campo va a una alerta roja del formulario (`root.servidor` de react-hook-form); `REGLA_NEGOCIO` y `NO_ENCONTRADO` van a notificación con el `mensaje` del backend; `ERROR_INTERNO` muestra un mensaje genérico, salvo cuando el backend no responde («No se pudo conectar con el servidor…»).
 - **Sesión vencida**: el cliente dispara el evento `sesion-expirada` ante un `401 NO_AUTENTICADO`. `EscuchaSesionExpirada` (raíz del router) limpia la caché, avisa y lleva a `/login`. No actúa si ya se está en `/login` ni si en esta pestaña nunca hubo sesión (en ese caso `RequireAuth` redirige sin aviso).
-- **Caché**: `['me']`, `['conductores', filtros]`, `['vehiculos', filtros]`. Las mutaciones invalidan por prefijo.
+- **Caché**: `['me']`, `['conductores', filtros]`, `['vehiculos', filtros]`, `['rutas', { q }]`, `['ruta', id]`. Las mutaciones invalidan por prefijo. Guardar o eliminar una ruta invalida también `['conductores']` (su columna de rutas de hoy).
+- **Mapa**: `maplibre-gl` directo con el estilo de OpenFreeMap (`tiles.openfreemap.org/styles/liberty`), centrado en Popayán. No se usa Leaflet ni Geoman. `MapaBase` crea el mapa una vez y lo destruye al desmontar; las líneas van en una sola fuente GeoJSON (capa sólida + capa punteada) que se actualiza con `setData`; los marcadores se sincronizan por `id`. La API usa `{ lat, lng }` y MapLibre `[lng, lat]`: la conversión vive **solo** en `src/mapa/coordenadas.ts`.
+- **Editor de ruta**: el trazado (principal, alternos, cuál está activo) es un reducer puro (`editor/trazado.ts`); los datos (nombre, código, color) van en react-hook-form. Al guardar se valida todo con zod con los mismos mensajes del backend. En el `PUT` se envían **todos** los alternos (con `id` los existentes, sin `id` los nuevos); el que se elimina en la UI simplemente no se envía. Los errores del backend `recorridoPrincipal` / `alternos[i].…` se muestran en la tarjeta correspondiente y además en la alerta general.
+- Un clic sobre un marcador también llega como clic al mapa en MapLibre; `MapaBase` lo descarta para no agregar puntos encima de un vértice. Con el mapa editable se desactiva el zoom con doble clic.
 
 ## Lista de verificación manual (Fase 1)
 
@@ -117,3 +132,42 @@ Con el backend en perfil `demo` recién arrancado.
 - [ ] CA-30.2 Desactivar sin motivo → «Escriba el motivo de la desactivación».
 - [ ] CA-30.3 Vehículo en recorrido → Desactivar deshabilitado.
 - [ ] CA-30.4 Reactivar `UM-410` → chip «Activo», sin motivo.
+
+## Lista de verificación manual (Fase 2)
+
+Con el backend en perfil `demo`.
+
+### Lista de rutas (HU-04, HU-05)
+
+- [ ] `/` redirige a `/rutas` y el menú marca «Rutas» (también en `/rutas/nueva` y `/rutas/:id`).
+- [ ] Tabla: insignia con el código sobre el color, nombre, «Editada [fecha]», «N puntos», alternos, «Asignada hoy a» (o «Sin asignar») y chip de estado.
+- [ ] Buscador «Buscar por código o nombre» (espera 300 ms) y contador «N rutas».
+- [ ] Al entrar se selecciona la primera ruta y se ve su vista previa (300 px) con principal sólido, alternos punteados naranja, pines I y F y la leyenda.
+- [ ] Clic (o Enter) en otra fila → cambia la vista previa; los botones de la fila no cambian la selección.
+- [ ] CA-03.2 Ruta con 2 alternos → la vista previa muestra los dos punteados, con la leyenda.
+- [ ] CA-05.1 Eliminar una ruta sin recorridos activos y confirmar «Eliminar ruta» → desaparece de la lista.
+- [ ] CA-05.2 Ruta con recorridos activos → Eliminar deshabilitado con tooltip «Tiene recorridos activos»; si llega un 409 se muestra en notificación.
+- [ ] CA-05.3 Cancelar el diálogo «¿Eliminar la ruta [código]?» → no se elimina.
+- [ ] Sin rutas → «Todavía no hay rutas. Cree la primera con Nueva ruta.»
+
+### Editor de ruta (HU-02, HU-03, HU-04)
+
+- [ ] Clic en el mapa agrega puntos al final del trazado activo; arrastrar un vértice (o los pines I/F) lo mueve; «Deshacer punto» quita el último; «Borrar trazado» lo vacía (pide confirmación con más de 2 puntos).
+- [ ] CA-02.5 Pines I y F en el primer y último punto, en el orden de los clics.
+- [ ] Trazado activo con vértices; inactivos sin vértices y tenues; alternos siempre punteados.
+- [ ] Chips «N puntos», «Inicio marcado», «Final marcado» en verde con 2 o más puntos; «Falta trazar» en naranja si no.
+- [ ] Color: muestras de la paleta del backend; al cambiarlo, la línea principal cambia de color.
+- [ ] CA-02.1 Nombre nuevo + recorrido trazado → «Ruta creada», vuelve a `/rutas` con esa ruta seleccionada en la vista previa.
+- [ ] CA-02.2 Sin recorrido → «Falta trazar el recorrido principal», sin llamar a la API (pestaña Red).
+- [ ] CA-02.3 Nombre de otra ruta → «Ya existe una ruta con este nombre» bajo el nombre.
+- [ ] CA-02.4 Recorrido de un solo punto → «La ruta debe tener punto de inicio y punto final».
+- [ ] Alterno sin nombre o con menos de dos puntos → mensaje en su tarjeta y en la alerta general.
+- [ ] CA-03.1 Agregar un alterno, trazarlo y guardar → se ve punteado, distinto del principal.
+- [ ] «Agregar camino alterno» se deshabilita al llegar a 10.
+- [ ] CA-04.1 Editar nombre o mover puntos y guardar → «Cambios guardados»; la lista y la vista previa muestran la versión nueva.
+- [ ] Al abrir una ruta existente, el mapa se encuadra al recorrido principal.
+- [ ] CA-04.2 Borrar el recorrido principal y guardar → «Falta trazar el recorrido principal»; no se guarda.
+- [ ] CA-04.3 Ruta con 2 alternos: eliminar uno y guardar → al reabrirla queda solo uno.
+- [ ] Cancelar con cambios → pide confirmación; sin cambios vuelve directo a `/rutas`.
+- [ ] `/rutas/999999` → «La ruta no existe» con botón para volver.
+- [ ] Ventana angosta → el panel queda debajo del mapa.

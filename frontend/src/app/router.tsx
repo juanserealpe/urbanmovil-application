@@ -5,6 +5,8 @@ import { RequireAuth } from '../auth/RequireAuth';
 import { PaginaNoEncontrada } from '../components/PaginaNoEncontrada';
 import { PaginaProvisional } from '../components/PaginaProvisional';
 import { ConductoresPage } from '../features/conductores/ConductoresPage';
+import { EditorRutaPage } from '../features/rutas/editor/EditorRutaPage';
+import { RutasPage } from '../features/rutas/RutasPage';
 import { VehiculosPage } from '../features/vehiculos/VehiculosPage';
 import { AppLayout } from '../layout/AppLayout';
 
@@ -19,11 +21,12 @@ export const router = createBrowserRouter([
           {
             element: <AppLayout />,
             children: [
-              // La Fase 2 cambiará este destino a /rutas.
-              { index: true, element: <Navigate to="/conductores" replace /> },
+              { index: true, element: <Navigate to="/rutas" replace /> },
               { path: '/conductores', element: <ConductoresPage /> },
               { path: '/vehiculos', element: <VehiculosPage /> },
-              { path: '/rutas', element: <PaginaProvisional titulo="Rutas" /> },
+              { path: '/rutas', element: <RutasPage /> },
+              { path: '/rutas/nueva', element: <EditorRutaPage /> },
+              { path: '/rutas/:id', element: <EditorRutaPage /> },
               { path: '/programacion', element: <PaginaProvisional titulo="Programación del día" /> },
               { path: '/monitoreo', element: <PaginaProvisional titulo="Monitoreo" /> },
             ],
