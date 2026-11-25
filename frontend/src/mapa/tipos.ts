@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import type { Punto } from '../api/tipos';
 
 export interface LineaMapa {
@@ -22,6 +23,19 @@ export interface MarcadorMapa {
   /** Texto accesible y tooltip. */
   etiqueta?: string;
   arrastrable?: boolean;
+  /** Contenido del popup que se abre al hacer clic. Se actualiza sin recrear el marcador. */
+  popup?: ContenidoPopup;
+}
+
+export interface ContenidoPopup {
+  titulo: string;
+  lineas: string[];
+}
+
+/** Acciones imperativas del mapa (p. ej. desde un panel lateral). */
+export interface MapaBaseHandle {
+  /** Centra el mapa en el marcador y abre su popup, si tiene. */
+  enfocarMarcador: (id: string) => void;
 }
 
 export interface MapaBaseProps {
@@ -34,4 +48,5 @@ export interface MapaBaseProps {
   encuadrar?: Punto[];
   alto?: number | string;
   ariaLabel: string;
+  ref?: Ref<MapaBaseHandle>;
 }

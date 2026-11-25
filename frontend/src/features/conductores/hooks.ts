@@ -8,6 +8,7 @@ import {
   type FiltrosConductores,
 } from '../../api/conductores';
 import type { ConductorCrearRequest, ConductorModificarRequest, DisponibilidadRequest } from '../../api/tipos';
+import { invalidarTrasConductor } from '../../app/invalidaciones';
 
 export const CLAVE_CONDUCTORES = ['conductores'] as const;
 
@@ -19,10 +20,10 @@ export function useConductores(filtros: FiltrosConductores) {
   });
 }
 
-/** Invalida por prefijo para refrescar todas las variantes de filtros. */
+/** Invalida por prefijo para refrescar todas las variantes de filtros (y el resumen de programaciones). */
 function useInvalidarConductores() {
   const qc = useQueryClient();
-  return () => qc.invalidateQueries({ queryKey: CLAVE_CONDUCTORES });
+  return () => invalidarTrasConductor(qc);
 }
 
 export function useCrearConductor() {

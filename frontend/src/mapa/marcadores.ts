@@ -1,6 +1,6 @@
 import type { PositionAnchor } from 'maplibre-gl';
 import clases from './MapaBase.module.css';
-import type { MarcadorMapa } from './tipos';
+import type { ContenidoPopup, MarcadorMapa } from './tipos';
 
 export const COLOR_INICIO = '#137A3F';
 export const COLOR_FINAL = '#12161C';
@@ -17,7 +17,26 @@ const SVG_BUS =
 
 /** Firma de lo que obliga a recrear el elemento del marcador (la posición no cuenta). */
 export function firmaMarcador(m: MarcadorMapa): string {
-  return [m.tipo, m.color ?? '', m.etiqueta ?? '', m.arrastrable ? '1' : '0'].join('|');
+  return [m.tipo, m.color ?? '', m.etiqueta ?? '', m.arrastrable ? '1' : '0', m.popup ? 'p' : ''].join('|');
+}
+
+export function firmaPopup(p: ContenidoPopup | undefined): string {
+  return p ? [p.titulo, ...p.lineas].join('\n') : '';
+}
+
+/** Contenido del popup con `textContent`: nada de HTML armado con datos. */
+export function crearContenidoPopup(p: ContenidoPopup): HTMLElement {
+  const el = document.createElement('div');
+  el.className = clases.popup;
+  const titulo = document.createElement('strong');
+  titulo.textContent = p.titulo;
+  el.appendChild(titulo);
+  for (const linea of p.lineas) {
+    const fila = document.createElement('div');
+    fila.textContent = linea;
+    el.appendChild(fila);
+  }
+  return el;
 }
 
 export function anclaMarcador(m: MarcadorMapa): PositionAnchor {
@@ -62,6 +81,7 @@ export function crearElementoMarcador(m: MarcadorMapa): HTMLElement {
   }
 
   if (m.arrastrable) el.dataset.arrastrable = '';
+  if (m.popup) el.style.cursor = 'pointer';
   if (m.etiqueta) {
     el.title = m.etiqueta;
     el.setAttribute('aria-label', m.etiqueta);

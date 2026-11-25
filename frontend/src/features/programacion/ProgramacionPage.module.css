@@ -1,0 +1,53 @@
+.disposicion {
+  display: flex;
+  gap: var(--mantine-spacing-lg);
+  align-items: flex-start;
+}
+
+.columnaConductores {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.detalle {
+  flex: 1;
+  min-width: 0;
+}
+
+.tarjetaConductor {
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  /* Compensa el borde de 2 px de la seleccionada para que no salte. */
+  margin: 1px 0;
+}
+
+.tarjetaConductor:hover {
+  background: #f8f9fb;
+}
+
+.tarjetaConductor:focus-visible {
+  outline: 3px solid var(--mantine-color-urbano-3);
+  outline-offset: 2px;
+}
+
+.tarjetaConductor[data-seleccionada] {
+  border: 2px solid var(--mantine-color-urbano-6);
+  margin: 0;
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .disposicion {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .columnaConductores {
+    width: 100%;
+  }
+}

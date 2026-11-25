@@ -9,4 +9,8 @@ export default defineConfig({
     // así la cookie de sesión JSESSIONID funciona sin configurar CORS.
     proxy: { '/api': 'http://localhost:8080' },
   },
+  // `vite preview` no hereda el proxy de `server`: sin esto, el build servido no llega a la API.
+  preview: {
+    proxy: { '/api': 'http://localhost:8080' },
+  },
 })

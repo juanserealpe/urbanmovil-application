@@ -2,7 +2,7 @@
 
 Frontend del panel de administración (épica EP-01). React + TypeScript (Vite), Mantine, React Query, react-hook-form + zod.
 
-Estado actual: **Fase 2** — Fase 1 (login, menú, conductores y vehículos: HU-01, HU-06, HU-07, HU-08, HU-28, HU-29, HU-30) más rutas con editor sobre mapa (HU-02, HU-03, HU-04, HU-05). Programación y monitoreo muestran una página provisional hasta la fase 3.
+Estado actual: **Fase 3 (panel completo)** — login, menú, conductores y vehículos (HU-01, HU-06, HU-07, HU-08, HU-28, HU-29, HU-30), rutas con editor sobre mapa (HU-02 a HU-05), programación del día (HU-09), reasignaciones por eventualidad (HU-25), monitoreo (HU-31) y recorridos de demostración (D-16).
 
 ### Pantallas
 
@@ -11,7 +11,10 @@ Estado actual: **Fase 2** — Fase 1 (login, menú, conductores y vehículos: HU
 | `/` | Redirige a `/rutas` |
 | `/rutas` | Lista de rutas con buscador, vista previa en mapa y eliminación (mockup 02) |
 | `/rutas/nueva` · `/rutas/:id` | Editor de ruta: datos, trazado del recorrido principal y de los caminos alternos (mockup 03) |
-| `/conductores` · `/vehiculos` | Fase 1 |
+| `/conductores` · `/vehiculos` | Altas, edición, disponibilidad / estado (Fase 1) |
+| `/programacion?fecha=&conductor=` | Programación del día por conductor, reasignación e historial (mockups 07 y 08) |
+| `/monitoreo` | Mapa de buses en recorrido con polling cada 4 s (mockup 09) |
+| `/demo` | Recorridos de demostración. **Solo con el backend en perfil `demo`**; si no, el ítem no aparece en el menú y `/demo` redirige a `/` |
 
 ## Requisitos
 
@@ -38,6 +41,15 @@ Estado actual: **Fase 2** — Fase 1 (login, menú, conductores y vehículos: HU
 
 3. Abrir `http://localhost:5173`.
 
+### Servir el build
+
+```bash
+npm run build     # genera dist/
+npm run preview   # sirve dist/ en http://localhost:4173
+```
+
+`vite.config.ts` configura el mismo proxy de `/api` también para `preview`, así que con el backend en `:8080` el build funciona igual que en desarrollo. En un servidor real, sirva `dist/` detrás de uno que reenvíe `/api` al backend y devuelva `index.html` para cualquier ruta (la cookie de sesión necesita el mismo origen).
+
 Vite hace de proxy de `/api` hacia `http://localhost:8080` (`vite.config.ts`), así que el navegador ve frontend y API en el mismo origen y la cookie de sesión `JSESSIONID` funciona sin configurar CORS. No se guarda ningún token en el navegador.
 
 ### Credenciales demo
@@ -52,7 +64,8 @@ Vite hace de proxy de `/api` hacia `http://localhost:8080` (`vite.config.ts`), a
 | Comando | Qué hace |
 | --- | --- |
 | `npm run dev` | Servidor de desarrollo en el puerto 5173 |
-| `npm run build` | Chequeo de tipos (`tsc -b`) y build de producción |
+| `npm run build` | Chequeo de tipos (`tsc -b`) y build de producción en `dist/` |
+| `npm run preview` | Sirve `dist/` en `http://localhost:4173` (después de `npm run build`) |
 | `npm run lint` | oxlint |
 
 ## Estructura de carpetas
@@ -61,7 +74,7 @@ Vite hace de proxy de `/api` hacia `http://localhost:8080` (`vite.config.ts`), a
 src/
 ├─ main.tsx         // punto de entrada: CSS de Mantine y <App />
 ├─ global.css
-├─ app/             // App, router, providers, queryClient, theme
+├─ app/             // App, router, providers, queryClient, theme, invalidaciones
 ├─ api/             // client.ts (fetch + ApiError), tipos.ts y un archivo por recurso
 ├─ auth/            // useSesion, RequireAuth, EscuchaSesionExpirada, LoginPage
 ├─ layout/          // AppLayout: menú lateral (AppShell + Burger en móvil)
@@ -70,8 +83,11 @@ src/
 ├─ features/
 │  ├─ conductores/  // ConductoresPage, ConductorForm (drawer), DisponibilidadModal, hooks
 │  ├─ vehiculos/    // VehiculosPage, VehiculoForm (drawer), DesactivarModal, hooks
-│  └─ rutas/        // RutasPage, VistaPreviaRuta, hooks, dibujoRuta, constantes
-│     └─ editor/    // EditorRutaPage, trazado.ts (reducer), validacion.ts (zod + errores), barra y tarjetas
+│  ├─ rutas/        // RutasPage, VistaPreviaRuta, hooks, dibujoRuta, constantes
+│  │  └─ editor/    // EditorRutaPage, trazado.ts (reducer), validacion.ts (zod + errores), barra y tarjetas
+│  ├─ programacion/ // ProgramacionPage, DetalleProgramacion, ReasignarModal, HistorialReasignaciones, hooks
+│  ├─ monitoreo/    // MonitoreoPage, hooks (polling + trazados)
+│  └─ demo/         // DemoPage, IniciarRecorridoForm, hooks (incluye useModoDemo)
 └─ utils/           // errores.ts, fechas.ts, motivos.ts, contrasena.ts
 ```
 
@@ -79,7 +95,10 @@ Decisiones clave:
 
 - **Errores de la API**: `utils/errores.ts → manejarErrorFormulario` reparte `campos` bajo cada input; lo que no es de un campo va a una alerta roja del formulario (`root.servidor` de react-hook-form); `REGLA_NEGOCIO` y `NO_ENCONTRADO` van a notificación con el `mensaje` del backend; `ERROR_INTERNO` muestra un mensaje genérico, salvo cuando el backend no responde («No se pudo conectar con el servidor…»).
 - **Sesión vencida**: el cliente dispara el evento `sesion-expirada` ante un `401 NO_AUTENTICADO`. `EscuchaSesionExpirada` (raíz del router) limpia la caché, avisa y lleva a `/login`. No actúa si ya se está en `/login` ni si en esta pestaña nunca hubo sesión (en ese caso `RequireAuth` redirige sin aviso).
-- **Caché**: `['me']`, `['conductores', filtros]`, `['vehiculos', filtros]`, `['rutas', { q }]`, `['ruta', id]`. Las mutaciones invalidan por prefijo. Guardar o eliminar una ruta invalida también `['conductores']` (su columna de rutas de hoy).
+- **Caché**: `['me']`, `['conductores', filtros]`, `['vehiculos', filtros]`, `['rutas', { q }]`, `['ruta', id]`, `['programaciones', fecha]`, `['programacion', conductorId, fecha]`, `['reasignaciones', filtros]`, `['monitoreo']`, `['demo', 'recorridos', estado]`. Las mutaciones invalidan por prefijo. Las invalidaciones que cruzan pantallas están juntas en `app/invalidaciones.ts` (tras programación, reasignación, recorrido y conductor), para que no se olvide ninguna.
+- **Programación del día**: fecha y conductor viven en la URL. Los cambios (agregar, retirar, subir/bajar) son locales hasta **Guardar programación**, que envía los ids en el orden visible; el borrador está atado a su conductor y fecha, y cambiar de cualquiera de los dos con cambios pendientes pide confirmación. Fechas pasadas: solo lectura. **Reasignar** solo aparece hoy y se deshabilita con cambios sin guardar (el `POST` cambia el servidor y dejaría el borrador desfasado); su respuesta actualiza el detalle sin otro GET.
+- **Monitoreo**: `refetchInterval` de 4 s que se apaga con la pestaña oculta (`useDocumentVisibility` + `refetchIntervalInBackground: false`) y al salir de la pantalla. Los trazados se piden una vez (`staleTime: Infinity`, `useQueries` con `combine`). Los marcadores se **mueven** (`setLngLat`); el popup se actualiza en el lugar. Si falla una actualización se conserva lo último visto y se avisa «No se pudo actualizar. Reintentando…».
+- **Modo demo**: `useModoDemo` reutiliza la query `['demo', 'recorridos', 'ACTIVO']`. Solo un **404** significa «sin perfil demo» (oculta el menú y redirige); otro error muestra el error en `/demo` sin redirigir.
 - **Mapa**: `maplibre-gl` directo con el estilo de OpenFreeMap (`tiles.openfreemap.org/styles/liberty`), centrado en Popayán. No se usa Leaflet ni Geoman. `MapaBase` crea el mapa una vez y lo destruye al desmontar; las líneas van en una sola fuente GeoJSON (capa sólida + capa punteada) que se actualiza con `setData`; los marcadores se sincronizan por `id`. La API usa `{ lat, lng }` y MapLibre `[lng, lat]`: la conversión vive **solo** en `src/mapa/coordenadas.ts`.
 - **Editor de ruta**: el trazado (principal, alternos, cuál está activo) es un reducer puro (`editor/trazado.ts`); los datos (nombre, código, color) van en react-hook-form. Al guardar se valida todo con zod con los mismos mensajes del backend. En el `PUT` se envían **todos** los alternos (con `id` los existentes, sin `id` los nuevos); el que se elimina en la UI simplemente no se envía. Los errores del backend `recorridoPrincipal` / `alternos[i].…` se muestran en la tarjeta correspondiente y además en la alerta general.
 - Un clic sobre un marcador también llega como clic al mapa en MapLibre; `MapaBase` lo descarta para no agregar puntos encima de un vértice. Con el mapa editable se desactiva el zoom con doble clic.
@@ -171,3 +190,70 @@ Con el backend en perfil `demo`.
 - [ ] Cancelar con cambios → pide confirmación; sin cambios vuelve directo a `/rutas`.
 - [ ] `/rutas/999999` → «La ruta no existe» con botón para volver.
 - [ ] Ventana angosta → el panel queda debajo del mapa.
+
+## Lista de verificación manual (Fase 3)
+
+Con el backend en perfil `demo` recién arrancado (hoy: Andrés `[R1, R2]` en recorrido en R1, Laura `[R2]` en recorrido en R2, Carlos `[R1, R2]`, Diana no disponible).
+
+### Programación del día (HU-09)
+
+- [ ] Fecha por defecto hoy; al cambiarla o elegir conductor, la URL queda `?fecha=…&conductor=…` y recargar la conserva.
+- [ ] Tarjetas: nombre, «N rutas programadas», chip «En recorrido · R1» (Andrés) y «No disponible» (Diana); la seleccionada con borde azul.
+- [ ] CA-09.1 Conductor sin rutas (Diana): agregar R2 y R1, guardar, recargar → R2, R1 en ese orden.
+- [ ] CA-09.2 Retirar una ruta pendiente y guardar → ya no aparece.
+- [ ] CA-09.3 Andrés, R1 en recorrido → chip «En recorrido», candado, «No se puede retirar hasta que termine», sin botón de retirar.
+- [ ] CA-09.4 «Agregar ruta» no ofrece las rutas ya asignadas.
+- [ ] CA-09.5 Subir/bajar y guardar → queda el nuevo orden.
+- [ ] Con cambios: franja «Tiene cambios sin guardar» + **Descartar**; cambiar de conductor o de fecha pide confirmación.
+- [ ] Fecha pasada → solo lectura con «Las programaciones de días pasados no se pueden modificar.»
+- [ ] **Reasignar por eventualidad** solo visible hoy.
+
+### Reasignación (HU-25)
+
+- [ ] El modal ofrece para asignar solo las rutas que no tiene y para quitar solo las que tiene (sin las `RETIRO_PENDIENTE`); la de recorrido dice «Está en recorrido: se quitará al terminarlo».
+- [ ] CA-25.1 Motivo + rutas → «Reasignación guardada»; la programación cambia y aparece en el historial con hora y administrador.
+- [ ] CA-25.2 Motivo vacío → «Escriba qué pasó», sin llamar a la API.
+- [ ] CA-25.3 Quitar a Andrés la R1 (en recorrido) → queda «Se retira al terminar el recorrido».
+- [ ] CA-25.4 Seleccionar otro conductor → su programación no cambió.
+- [ ] CA-25.5 Ninguna ruta marcada → «Indique al menos una ruta para asignar o quitar».
+- [ ] Historial vacío → «Sin reasignaciones en esta fecha.»
+
+### Monitoreo (HU-31)
+
+- [ ] CA-31.5 Aviso «Posición simulada…» visible.
+- [ ] CA-31.1 Se ven 2 buses sobre sus rutas; clic en un bus → popup con número interno, placa, ruta, conductor y «Posición de las [hora]».
+- [ ] CA-31.2 Pasan unos segundos → los buses avanzan sin recargar; «Actualizado a las …» cambia.
+- [ ] Clic en una fila del panel → centra el mapa en ese bus y abre su popup.
+- [ ] Pestaña oculta → no hay peticiones a `/monitoreo/buses` (pestaña Red); al volver se reanudan.
+- [ ] Apagar el backend → franja «No se pudo actualizar. Reintentando…» y los buses siguen donde estaban.
+- [ ] CA-31.3 Sin recorridos activos → mapa centrado en Popayán y «No hay buses en recorrido».
+- [ ] CA-31.4 Finalizar un recorrido → en la siguiente actualización ese bus desaparece.
+
+### Recorridos de demostración (§6.4)
+
+- [ ] Con perfil demo: ítem «Recorridos de demostración» con insignia «Demo», separado por una línea. Sin perfil demo: no aparece y `/demo` redirige a `/`.
+- [ ] Conductor: solo disponibles sin recorrido; Ruta: solo pendientes de hoy (o el texto con enlace a Programación); Vehículo: activos sin recorrido, como «UM-118 · ABC123».
+- [ ] 1. Iniciar un recorrido (Carlos, R1, UM-118) → «Recorrido iniciado: …»; en Conductores, Carlos «En recorrido» con eliminar y «No disponible» bloqueados.
+- [ ] 2. En Vehículos, UM-118 con eliminar y desactivar bloqueados.
+- [ ] 3. En Rutas, R1 con eliminar bloqueado.
+- [ ] 4. Reasignar a Carlos quitando R1 → «Se retira al terminar el recorrido»; finalizarlo → R1 sale de su programación.
+- [ ] 5. El monitoreo muestra el bus nuevo y deja de mostrarlo al finalizarlo.
+- [ ] Finalizados: columna **Fin**; Finalizar pide «¿Finalizar el recorrido de [conductor] en [ruta]?».
+
+### Pulido
+
+- [ ] Todas las pantallas a 360 px y a 1440 px.
+- [ ] Título de pestaña por pantalla («Conductores · UrbanMovil Admin»…) y favicon de bus.
+- [ ] `npm run build` y `npm run lint` sin errores.
+
+## Guion de demo (5 minutos)
+
+Backend en perfil `demo` recién arrancado, frontend en `http://localhost:5173`.
+
+1. **Login (0:00–0:30)** — Entrar con `admin@urbanmovil.co` / `Admin12345`. Se abre **Rutas**.
+2. **Rutas (0:30–1:30)** — Mostrar la tabla (R1 y R2 «N recorridos activos», eliminar bloqueado) y la vista previa de R3 con sus 2 alternos punteados y la leyenda. **Editar R3**: arrastrar un vértice, agregar un punto al final con un clic, guardar → «Cambios guardados» y la vista previa ya muestra la versión nueva.
+3. **Conductores y vehículos (1:30–2:15)** — En Conductores, Andrés y Laura «En recorrido» (eliminar y «No disponible» bloqueados con tooltip). En Vehículos, UM-104 y UM-305 en recorrido; UM-410 inactivo con su motivo.
+4. **Programación y reasignación (2:15–3:30)** — En **Programación del día**, elegir Carlos (`R1, R2`): bajar R1, guardar. Elegir Andrés (`R1, R2`, en recorrido en R1): R1 con candado. **Reasignar por eventualidad**: «Andrés reportó falla mecánica», asignarle R3 y quitarle R1 → R1 queda «Se retira al terminar el recorrido» y la reasignación aparece en el historial con hora y administrador.
+5. **Iniciar recorrido de demo (3:30–4:00)** — En **Recorridos de demostración**, iniciar Carlos · R2 · UM-118 → «Recorrido iniciado…».
+6. **Monitoreo (4:00–4:40)** — Señalar el aviso de posición simulada, los 3 buses avanzando y «Actualizado a las…». Clic en el bus de Carlos en el panel → el mapa se centra y abre su popup.
+7. **Finalizar (4:40–5:00)** — Volver a Recorridos de demostración, finalizar el de Andrés → en Programación, R1 sale de su lista (estaba en retiro pendiente) y en Monitoreo su bus desaparece en la siguiente actualización.

@@ -1,0 +1,49 @@
+.disposicion {
+  display: flex;
+  gap: var(--mantine-spacing-lg);
+  align-items: flex-start;
+}
+
+.columnaMapa {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-lg);
+  overflow: hidden;
+}
+
+.panel {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.filaBus {
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--mantine-radius-md);
+  padding: 8px 10px;
+}
+
+.filaBus:hover {
+  background: #f3f5f8;
+}
+
+.filaBus:focus-visible {
+  outline: 3px solid var(--mantine-color-urbano-3);
+  outline-offset: 1px;
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .disposicion {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .panel {
+    width: 100%;
+  }
+}

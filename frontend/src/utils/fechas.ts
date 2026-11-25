@@ -21,6 +21,18 @@ export function formatearFechaHora(iso: string): string {
   return `${d.date()} ${MESES_CORTOS[d.month()]} ${d.year()}, ${d.format('h:mm')} ${meridiano}`;
 }
 
+/** «10:41:05 a. m.» en America/Bogota. */
+export function formatearHora(iso: string): string {
+  const d = dayjs(iso).tz(ZONA_NEGOCIO);
+  if (!d.isValid()) return iso;
+  return `${d.format('h:mm:ss')} ${d.hour() < 12 ? 'a. m.' : 'p. m.'}`;
+}
+
+/** true si `valor` es una fecha `YYYY-MM-DD` válida. */
+export function esFechaValida(valor: string | null | undefined): valor is string {
+  return Boolean(valor) && dayjs(valor, 'YYYY-MM-DD', true).isValid();
+}
+
 /** «martes 24 de noviembre» a partir de `YYYY-MM-DD`. */
 export function formatearFecha(yyyyMmDd: string): string {
   const d = dayjs(yyyyMmDd, 'YYYY-MM-DD', true);

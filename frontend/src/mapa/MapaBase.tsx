@@ -5,14 +5,16 @@ import {
   MapLibreMap,
   Marker,
   NavigationControl,
+  Popup,
   type GeoJSONSource,
 } from 'maplibre-gl';
-import { useEffect, useRef, useState } from 'react';
+import { Loader } from '@mantine/core';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import type { Punto } from '../api/tipos';
 import { CENTRO_INICIAL, ESTILO_MAPA, ZOOM_INICIAL } from './config';
 import { aLngLat, aPunto } from './coordenadas';
 import clases from './MapaBase.module.css';
-import { anclaMarcador, crearElementoMarcador, firmaMarcador } from './marcadores';
+import { anclaMarcador, crearContenidoPopup, crearElementoMarcador, firmaMarcador, firmaPopup } from './marcadores';
 import type { LineaMapa, MapaBaseProps, MarcadorMapa } from './tipos';
 
 const FUENTE_LINEAS = 'um-lineas';
@@ -22,6 +24,8 @@ const CAPA_PUNTEADAS = 'um-lineas-punteadas';
 interface MarcadorVivo {
   marcador: Marker;
   firma: string;
+  popup?: Popup;
+  firmaPopup: string;
 }
 
 /** El tipo que acepta `setData` (sin el caso URL). Así no dependemos de los tipos globales de GeoJSON. */
@@ -63,6 +67,7 @@ export function MapaBase({
   encuadrar,
   alto = 400,
   ariaLabel,
+  ref,
 }: MapaBaseProps) {
   const contenedorRef = useRef<HTMLDivElement>(null);
   const mapaRef = useRef<MapLibreMap | null>(null);
@@ -179,7 +184,13 @@ export function MapaBase({
     for (const m of marcadores) {
       const vivo = vivos.get(m.id);
       if (vivo) {
+        // Se mueve, no se recrea (el popup abierto sigue al marcador).
         vivo.marcador.setLngLat(aLngLat(m.punto));
+        const firmaNueva = firmaPopup(m.popup);
+        if (vivo.popup && m.popup && firmaNueva !== vivo.firmaPopup) {
+          vivo.popup.setDOMContent(crearContenidoPopup(m.popup));
+          vivo.firmaPopup = firmaNueva;
+        }
         continue;
       }
       const marcador = new Marker({
@@ -194,7 +205,12 @@ export function MapaBase({
         marcador.on('drag', avisar);
         marcador.on('dragend', avisar);
       }
-      vivos.set(m.id, { marcador, firma: firmaMarcador(m) });
+      let popup: Popup | undefined;
+      if (m.popup) {
+        popup = new Popup({ offset: 18, maxWidth: '280px' }).setDOMContent(crearContenidoPopup(m.popup));
+        marcador.setPopup(popup);
+      }
+      vivos.set(m.id, { marcador, firma: firmaMarcador(m), popup, firmaPopup: firmaPopup(m.popup) });
     }
   }, [marcadores]);
 
@@ -215,13 +231,30 @@ export function MapaBase({
     mapa.fitBounds(limites, { padding: 48, maxZoom: 16, duration: 0 });
   }, [claveEncuadre, listo]);
 
+  // ---------- Acciones imperativas ----------
+  useImperativeHandle(
+    ref,
+    () => ({
+      enfocarMarcador: (id: string) => {
+        const mapa = mapaRef.current;
+        const vivo = marcadoresRef.current.get(id);
+        if (!mapa || !vivo) return;
+        mapa.easeTo({ center: vivo.marcador.getLngLat(), zoom: Math.max(mapa.getZoom(), 15) });
+        if (vivo.popup && !vivo.popup.isOpen()) vivo.marcador.togglePopup();
+      },
+    }),
+    [],
+  );
+
   return (
-    <div
-      ref={contenedorRef}
-      className={clases.contenedor}
-      style={{ height: alto }}
-      role="region"
-      aria-label={ariaLabel}
-    />
+    <div className={clases.contenedor} style={{ height: alto }} role="region" aria-label={ariaLabel}>
+      {/* MapLibre es dueño de este nodo: React no le pone hijos. */}
+      <div ref={contenedorRef} className={clases.lienzo} />
+      {!listo && (
+        <div className={clases.cargando} role="status" aria-label="Cargando mapa">
+          <Loader size="sm" />
+        </div>
+      )}
+    </div>
   );
 }

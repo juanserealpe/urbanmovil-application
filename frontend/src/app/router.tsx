@@ -3,8 +3,10 @@ import { EscuchaSesionExpirada } from '../auth/EscuchaSesionExpirada';
 import { LoginPage } from '../auth/LoginPage';
 import { RequireAuth } from '../auth/RequireAuth';
 import { PaginaNoEncontrada } from '../components/PaginaNoEncontrada';
-import { PaginaProvisional } from '../components/PaginaProvisional';
 import { ConductoresPage } from '../features/conductores/ConductoresPage';
+import { DemoPage } from '../features/demo/DemoPage';
+import { MonitoreoPage } from '../features/monitoreo/MonitoreoPage';
+import { ProgramacionPage } from '../features/programacion/ProgramacionPage';
 import { EditorRutaPage } from '../features/rutas/editor/EditorRutaPage';
 import { RutasPage } from '../features/rutas/RutasPage';
 import { VehiculosPage } from '../features/vehiculos/VehiculosPage';
@@ -27,8 +29,10 @@ export const router = createBrowserRouter([
               { path: '/rutas', element: <RutasPage /> },
               { path: '/rutas/nueva', element: <EditorRutaPage /> },
               { path: '/rutas/:id', element: <EditorRutaPage /> },
-              { path: '/programacion', element: <PaginaProvisional titulo="Programación del día" /> },
-              { path: '/monitoreo', element: <PaginaProvisional titulo="Monitoreo" /> },
+              { path: '/programacion', element: <ProgramacionPage /> },
+              { path: '/monitoreo', element: <MonitoreoPage /> },
+              // Redirige a / si el backend no tiene el perfil demo.
+              { path: '/demo', element: <DemoPage /> },
             ],
           },
         ],

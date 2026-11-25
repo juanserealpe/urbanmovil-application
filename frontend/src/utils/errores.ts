@@ -29,7 +29,8 @@ export function mensajeDeError(error: unknown): string | null {
     case 'METODO_NO_PERMITIDO':
       return MENSAJE_INESPERADO;
     default:
-      return error.message;
+      // Sin formulario donde ubicarlos, los mensajes por campo son más útiles que el general.
+      return error.body.campos.length > 0 ? error.body.campos.map((c) => c.mensaje).join(' ') : error.message;
   }
 }
 

@@ -43,6 +43,9 @@ function useInvalidarRutas() {
       qc.invalidateQueries({ queryKey: CLAVE_RUTAS }),
       qc.invalidateQueries({ queryKey: claveRuta(id) }),
       qc.invalidateQueries({ queryKey: ['conductores'] }),
+      // Código/nombre/color se muestran en la programación; al eliminar, la ruta sale de ella.
+      qc.invalidateQueries({ queryKey: ['programaciones'] }),
+      qc.invalidateQueries({ queryKey: ['programacion'] }),
     ]);
   };
 }

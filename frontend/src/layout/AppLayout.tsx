@@ -1,8 +1,9 @@
-import { AppShell, Box, Burger, Button, Group, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { AppShell, Badge, Box, Burger, Button, Divider, Group, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
+import { useDisclosure, useDocumentTitle, useMediaQuery } from '@mantine/hooks';
 import {
   IconBus,
   IconCalendarEvent,
+  IconFlask,
   IconLogout,
   IconMapPin,
   IconRoute,
@@ -12,6 +13,7 @@ import type { ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 import { useCerrarSesion, useSesion } from '../auth/useSesion';
 import { Logo } from '../components/Logo';
+import { useModoDemo } from '../features/demo/hooks';
 import clases from './AppLayout.module.css';
 
 interface ItemMenu {
@@ -27,6 +29,36 @@ const MENU: ItemMenu[] = [
   { ruta: '/programacion', etiqueta: 'Programación del día', icono: <IconCalendarEvent size={20} /> },
   { ruta: '/monitoreo', etiqueta: 'Monitoreo', icono: <IconMapPin size={20} /> },
 ];
+
+const ITEM_DEMO: ItemMenu = { ruta: '/demo', etiqueta: 'Recorridos de demostración', icono: <IconFlask size={20} /> };
+
+const SUFIJO_TITULO = ' · UrbanMovil Admin';
+
+/** Título de la pestaña según la pantalla: «Conductores · UrbanMovil Admin». */
+function tituloDePestana(pathname: string): string {
+  let nombre: string | undefined;
+  if (pathname === '/rutas/nueva') nombre = 'Nueva ruta';
+  else if (/^\/rutas\/[^/]+$/.test(pathname)) nombre = 'Editar ruta';
+  else nombre = [...MENU, ITEM_DEMO].find((i) => pathname === i.ruta || pathname.startsWith(`${i.ruta}/`))?.etiqueta;
+  return `${nombre ?? 'Administración'}${SUFIJO_TITULO}`;
+}
+
+function ItemNavegacion({ item, pathname, onClick, extra }: { item: ItemMenu; pathname: string; onClick: () => void; extra?: ReactNode }) {
+  const activo = pathname === item.ruta || pathname.startsWith(`${item.ruta}/`);
+  return (
+    <NavLink
+      component={Link}
+      to={item.ruta}
+      label={item.etiqueta}
+      leftSection={item.icono}
+      rightSection={extra}
+      active={activo}
+      aria-current={activo ? 'page' : undefined}
+      className={clases.link}
+      onClick={onClick}
+    />
+  );
+}
 
 function Marca() {
   return (
@@ -51,6 +83,8 @@ export function AppLayout() {
   const { pathname } = useLocation();
   const { administrador } = useSesion();
   const cerrarSesion = useCerrarSesion();
+  const { modo: modoDemo } = useModoDemo();
+  useDocumentTitle(tituloDePestana(pathname));
 
   return (
     <AppShell
@@ -74,22 +108,25 @@ export function AppLayout() {
 
         <AppShell.Section grow component={ScrollArea}>
           <Stack gap={4} component="nav">
-            {MENU.map((item) => {
-              const activo = pathname === item.ruta || pathname.startsWith(`${item.ruta}/`);
-              return (
-                <NavLink
-                  key={item.ruta}
-                  component={Link}
-                  to={item.ruta}
-                  label={item.etiqueta}
-                  leftSection={item.icono}
-                  active={activo}
-                  aria-current={activo ? 'page' : undefined}
-                  className={clases.link}
+            {MENU.map((item) => (
+              <ItemNavegacion key={item.ruta} item={item} pathname={pathname} onClick={close} />
+            ))}
+            {/* Solo si el backend corre con el perfil demo (GET /demo/recorridos no da 404). */}
+            {modoDemo === 'activo' && (
+              <>
+                <Divider my="xs" />
+                <ItemNavegacion
+                  item={ITEM_DEMO}
+                  pathname={pathname}
                   onClick={close}
+                  extra={
+                    <Badge color="gray" variant="light" size="sm" tt="none">
+                      Demo
+                    </Badge>
+                  }
                 />
-              );
-            })}
+              </>
+            )}
           </Stack>
         </AppShell.Section>
 

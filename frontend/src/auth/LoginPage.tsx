@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, Center, Paper, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { useDocumentTitle } from '@mantine/hooks';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
 import { Navigate, useLocation, useNavigate } from 'react-router';
@@ -20,6 +21,7 @@ type Salida = z.output<typeof esquema>;
 const CAMPOS = ['correo', 'contrasena'] as const;
 
 export function LoginPage() {
+  useDocumentTitle('Iniciar sesión · UrbanMovil Admin');
   const { administrador, cargando } = useSesion();
   const location = useLocation();
   const navigate = useNavigate();
