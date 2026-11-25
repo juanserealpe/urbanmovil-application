@@ -29,6 +29,12 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+
+        // Backend de UrbanMovil. Por defecto, el «localhost» del PC visto desde el emulador.
+        // Teléfono físico: ./gradlew installDebug -Purbanmovil.apiUrl=http://<IP-del-PC>:8080
+        // Vacío (-Purbanmovil.apiUrl=) = prototipo sin servidor, con datos quemados.
+        val urlApi = providers.gradleProperty("urbanmovil.apiUrl").getOrElse("http://10.0.2.2:8080")
+        buildConfigField("String", "API_URL", "\"$urlApi\"")
     }
     packaging {
         resources {
@@ -36,7 +42,12 @@ android {
         }
     }
     buildTypes {
+        debug {
+            // El backend local va por HTTP plano; solo se permite en debug.
+            manifestPlaceholders["traficoSinCifrar"] = "true"
+        }
         release {
+            manifestPlaceholders["traficoSinCifrar"] = "false"
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

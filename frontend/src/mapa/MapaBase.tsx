@@ -6,8 +6,10 @@ import {
   Marker,
   NavigationControl,
   Popup,
+  setWorkerUrl,
   type GeoJSONSource,
 } from 'maplibre-gl';
+import urlWorkerMapLibre from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { Loader } from '@mantine/core';
 import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import type { Punto } from '../api/tipos';
@@ -16,6 +18,11 @@ import { aLngLat, aPunto } from './coordenadas';
 import clases from './MapaBase.module.css';
 import { anclaMarcador, crearContenidoPopup, crearElementoMarcador, firmaMarcador, firmaPopup } from './marcadores';
 import type { LineaMapa, MapaBaseProps, MarcadorMapa } from './tipos';
+
+// MapLibre 6 busca su worker junto a `import.meta.url`. Vite pre-empaqueta la librería en
+// `node_modules/.vite/deps/`, donde ese archivo no existe: sin worker no se procesan los tiles
+// y el mapa queda en blanco (los marcadores sí se ven porque son DOM). Se le pasa la URL explícita.
+setWorkerUrl(urlWorkerMapLibre);
 
 const FUENTE_LINEAS = 'um-lineas';
 const CAPA_SOLIDAS = 'um-lineas-solidas';
@@ -56,7 +63,7 @@ function clavePuntos(puntos: Punto[] | undefined): string {
 }
 
 /**
- * Mapa base reutilizable (MapLibre + OpenFreeMap). Se crea una sola vez y se destruye al desmontar;
+ * Mapa base reutilizable (MapLibre + ciudad ficticia del backend). Se crea una sola vez y se destruye al desmontar;
  * las líneas se actualizan con `setData` y los marcadores se sincronizan por `id`.
  */
 export function MapaBase({
@@ -125,6 +132,9 @@ export function MapaBase({
       });
       setListo(true);
     });
+
+    // Sin esto, un fallo de tiles/worker/estilo es silencioso: solo se ve un mapa en blanco.
+    mapa.on('error', (e) => console.error('[MapaBase] MapLibre:', e.error));
 
     mapa.on('click', (e) => {
       // Un clic sobre un marcador también llega al mapa (MapLibre escucha el puntero en el lienzo):

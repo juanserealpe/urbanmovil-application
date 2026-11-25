@@ -12,6 +12,13 @@ import kotlinx.coroutines.flow.StateFlow
  * mañana una implementación real, sin tocar pantallas ni ViewModels.
  */
 interface TransitRepository {
+    /**
+     * Trae los datos iniciales. La UI la llama (y espera) antes de mostrar las pantallas, así el
+     * resto de métodos pueden seguir siendo síncronos. Lanza si no se pudo cargar.
+     * Los datos quemados no necesitan cargarse.
+     */
+    suspend fun cargar() {}
+
     fun rutas(): List<Ruta>
     fun ruta(id: String): Ruta?
     fun buses(): List<Bus>

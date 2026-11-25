@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Solo para que MapLibre descargue estilo y teselas de OpenFreeMap. -->
+    <!-- MapLibre (estilo y teselas de OpenFreeMap) y el backend de UrbanMovil. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -10,6 +10,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="${traficoSinCifrar}"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
             android:exported="true"

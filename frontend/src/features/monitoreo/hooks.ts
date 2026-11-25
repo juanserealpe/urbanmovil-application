@@ -1,5 +1,6 @@
 import { useDocumentVisibility } from '@mantine/hooks';
 import { useQueries, useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { obtenerMonitoreo } from '../../api/monitoreo';
 import { obtenerRuta } from '../../api/rutas';
 import type { RutaDetalle } from '../../api/tipos';
@@ -43,4 +44,21 @@ export function useTrazadosRutas(ids: number[]) {
     })),
     combine: combinarTrazados,
   });
+}
+
+const TIC_ANIMACION_MS = 100;
+
+/**
+ * Hora local (epoch ms) que se actualiza cada 100 ms para animar los buses entre consultas.
+ * Con la pestaña oculta se detiene: no tiene sentido re-renderizar lo que nadie ve.
+ */
+export function useAhora(): number {
+  const visibilidad = useDocumentVisibility();
+  const [ahora, setAhora] = useState(() => Date.now());
+  useEffect(() => {
+    if (visibilidad !== 'visible') return;
+    const id = setInterval(() => setAhora(Date.now()), TIC_ANIMACION_MS);
+    return () => clearInterval(id);
+  }, [visibilidad]);
+  return ahora;
 }

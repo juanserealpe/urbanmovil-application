@@ -12,6 +12,11 @@
     <string name="login_credenciales_invalidas">Credenciales inválidas</string>
     <string name="aviso_prototipo">Prototipo: el acceso es de demostración</string>
 
+    <!-- Carga de datos del backend -->
+    <string name="carga_cargando">Cargando rutas y buses…</string>
+    <string name="carga_error">No pudimos conectarnos con UrbanMovil. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="carga_reintentar">Reintentar</string>
+
     <!-- Barra inferior -->
     <string name="tab_rutas">Rutas</string>
     <string name="tab_cuando_pasa">Cuándo pasa</string>

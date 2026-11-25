@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import co.urbanmovil.app.LocalEstiloMapa
 import co.urbanmovil.app.data.model.Punto
 import co.urbanmovil.app.domain.limites
 import co.urbanmovil.app.ui.theme.UrbanColores
@@ -85,9 +86,12 @@ fun MapaUrbano(
 ) {
     // Al volver a entrar a la pantalla se reintenta el estilo remoto.
     var sinConexion by remember { mutableStateOf(false) }
+    // Con backend: la ciudad ficticia, el MISMO estilo que la web. Sin backend: Popayán real.
+    val urlEstilo = LocalEstiloMapa.current
+    val estiloRemoto = remember(urlEstilo) { urlEstilo?.let { BaseStyle.Uri(it) } ?: ESTILO_OPENFREEMAP }
 
     val estado = rememberMapState(
-        baseStyle = if (sinConexion) ESTILO_SIN_CONEXION else ESTILO_OPENFREEMAP,
+        baseStyle = if (sinConexion) ESTILO_SIN_CONEXION else estiloRemoto,
         initialCameraPosition = CameraPosition(center = centro.aPosition(), zoom = zoom),
     ) {
         lineas.forEach { linea -> key(linea.id) { CapaLinea(linea) } }

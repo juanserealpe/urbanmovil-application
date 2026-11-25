@@ -215,11 +215,14 @@ export interface BusMonitoreo {
   conductor: { id: number; nombre: string };
   posicion: Punto;
   horaPosicion: string;
+  /** Inicio del recorrido: con `velocidadKmh` la web anima el bus entre consultas. */
+  inicio: string;
 }
 
 export interface Monitoreo {
   simulado: boolean;
   generadoEn: string;
+  velocidadKmh: number;
   buses: BusMonitoreo[];
 }
 

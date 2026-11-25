@@ -1,17 +1,18 @@
 package co.urbanmovil.api.demo
 
+import co.urbanmovil.api.mapa.CiudadFicticia.esquina
+import co.urbanmovil.api.mapa.CiudadFicticia.trazado
 import co.urbanmovil.api.ruta.Punto
-import kotlin.math.round
 
 /**
- * Trazados de demostración sobre Popayán (alrededor del Parque Caldas, 2.4419, -76.6066).
+ * Rutas de demostración sobre la ciudad ficticia ([co.urbanmovil.api.mapa.CiudadFicticia]).
  *
- * Son COORDENADAS APROXIMADAS: no existe todavía el FakeData.kt de la app del pasajero para
- * reutilizarlas. Para reemplazarlas:
- *   1. Dibuje la ruta como LineString en https://geojson.io, en el sentido de circulación.
- *   2. Copie el arreglo `coordinates` (viene como [lng, lat]) e inviértalo a `p(lat, lng)`.
- *   3. Pegue los puntos en la lista correspondiente (puede quitar `densificar`).
- * Si después aparece el FakeData.kt, copie aquí exactamente sus coordenadas para que ambas apps coincidan.
+ * Se arman SOLO con esquinas `esquina(carrera, calle)` unidas por [trazado], que lanza si un tramo
+ * no va por una carrera, una calle o la Diagonal del Sol: es imposible que un bus atraviese manzanas.
+ *
+ * Cada recorrido principal es un CIRCUITO (termina donde empieza): el simulador da vueltas, y así
+ * al reiniciar la vuelta el bus no «salta» de un extremo de la ciudad al otro.
+ * Cada alterno sale de una esquina del recorrido principal y vuelve a otra.
  */
 object RutasDemo {
 
@@ -25,75 +26,26 @@ object RutasDemo {
         val alternos: List<AlternoDemo> = emptyList(),
     )
 
-    private fun p(lat: Double, lng: Double) = Punto(lat, lng)
-
-    /** Inserta puntos intermedios entre cada par de esquinas (trazado más suave en el mapa). */
-    private fun densificar(esquinas: List<Punto>, intermedios: Int = 1): List<Punto> =
-        esquinas.zipWithNext().flatMap { (a, b) ->
-            (0..intermedios).map { i ->
-                val t = i.toDouble() / (intermedios + 1)
-                Punto(redondear(a.lat + (b.lat - a.lat) * t), redondear(a.lng + (b.lng - a.lng) * t))
-            }
-        } + esquinas.last()
-
-    private fun redondear(valor: Double) = round(valor * 1_000_000) / 1_000_000
-
-    /** R1 · Parque Caldas → hacia el norte por la Cra 6 / Av. Panamericana → Campanario. 21 puntos. */
-    private val r1 = densificar(
-        listOf(
-            p(2.44190, -76.60660), p(2.44320, -76.60600), p(2.44460, -76.60580), p(2.44610, -76.60470),
-            p(2.44780, -76.60330), p(2.44950, -76.60180), p(2.45130, -76.60020), p(2.45320, -76.59870),
-            p(2.45510, -76.59740), p(2.45690, -76.59620), p(2.45860, -76.59560),
-        ),
+    /** R1 · Av. Libertadores al norte, Calle 18, Carrera 12, Calle 14, Carrera 17 (Terminal) y regreso por la Calle 8. */
+    private val r1 = trazado(
+        esquina(5, 8), esquina(5, 18), esquina(12, 18), esquina(12, 14), esquina(17, 14), esquina(17, 8), esquina(5, 8),
     )
+    private val r1PorLaCalle12 = trazado(esquina(5, 12), esquina(12, 12), esquina(12, 14))
 
-    /** Desvío por Cra 9: sale del centro hacia el occidente y se reincorpora más al norte. */
-    private val r1Desvio = densificar(
-        listOf(
-            p(2.44190, -76.60660), p(2.44200, -76.60890), p(2.44420, -76.60900), p(2.44650, -76.60860),
-            p(2.44880, -76.60700), p(2.45000, -76.60400), p(2.45130, -76.60020),
-        ),
-    )
+    /** R2 · Diagonal del Sol hasta el nororiente, baja por la Carrera 18 (Universidad) y vuelve por la Calle 2 (La Ribera). */
+    private val r2 = trazado(esquina(2, 2), esquina(18, 18), esquina(18, 2), esquina(2, 2))
+    private val r2PorLaAvCentral = trazado(esquina(10, 10), esquina(10, 2))
 
-    /** R2 · Bello Horizonte (norte) → Terminal de Transportes. 23 puntos. */
-    private val r2 = densificar(
-        listOf(
-            p(2.47150, -76.58620), p(2.46980, -76.58710), p(2.46800, -76.58800), p(2.46620, -76.58900),
-            p(2.46430, -76.59010), p(2.46250, -76.59120), p(2.46070, -76.59230), p(2.45890, -76.59330),
-            p(2.45710, -76.59420), p(2.45560, -76.59480), p(2.45430, -76.59520), p(2.45330, -76.59550),
-        ),
+    /** R3 · Circuito occidente–oriente: Calle 4 (Estadio), Carrera 19 (Plaza de Mercado) y regreso por la Calle 12 y la Calle 9. */
+    private val r3 = trazado(
+        esquina(1, 4), esquina(14, 4), esquina(14, 7), esquina(19, 7), esquina(19, 12),
+        esquina(8, 12), esquina(8, 9), esquina(1, 9), esquina(1, 4),
     )
-
-    /** R3 · La Esmeralda (suroccidente) → centro → Pomona (norte). 25 puntos. */
-    private val r3 = densificar(
-        listOf(
-            p(2.43150, -76.61650), p(2.43280, -76.61500), p(2.43430, -76.61350), p(2.43580, -76.61200),
-            p(2.43740, -76.61050), p(2.43900, -76.60900), p(2.44060, -76.60780), p(2.44190, -76.60660),
-            p(2.44380, -76.60740), p(2.44570, -76.60820), p(2.44760, -76.60900), p(2.44950, -76.60980),
-            p(2.45130, -76.61050),
-        ),
-    )
-
-    private val r3PorLaCalle5 = densificar(
-        listOf(
-            p(2.43580, -76.61200), p(2.43700, -76.61320), p(2.43880, -76.61280), p(2.44050, -76.61100),
-            p(2.44190, -76.60660),
-        ),
-    )
-
-    private val r3PorElRioMolino = densificar(
-        listOf(
-            p(2.44570, -76.60820), p(2.44620, -76.61050), p(2.44800, -76.61150), p(2.44990, -76.61160),
-            p(2.45130, -76.61050),
-        ),
-    )
+    private val r3PorLaCalle6 = trazado(esquina(1, 6), esquina(14, 6))
 
     val rutas = listOf(
-        RutaDemo("R1", "Centro – Campanario", "#0057B8", r1, listOf(AlternoDemo("Desvío por Cra 9", r1Desvio))),
-        RutaDemo("R2", "Bello Horizonte – Terminal", "#D62828", r2),
-        RutaDemo(
-            "R3", "La Esmeralda – Pomona", "#2A9D8F", r3,
-            listOf(AlternoDemo("Desvío por la Calle 5", r3PorLaCalle5), AlternoDemo("Desvío por el río Molino", r3PorElRioMolino)),
-        ),
+        RutaDemo("R1", "Libertadores – Terminal", "#0057B8", r1, listOf(AlternoDemo("Desvío por la Calle 12", r1PorLaCalle12))),
+        RutaDemo("R2", "Diagonal del Sol – Universidad", "#D62828", r2, listOf(AlternoDemo("Desvío por la Av. Central", r2PorLaAvCentral))),
+        RutaDemo("R3", "Estadio – Plaza de Mercado", "#2A9D8F", r3, listOf(AlternoDemo("Desvío por la Calle 6", r3PorLaCalle6))),
     )
 }

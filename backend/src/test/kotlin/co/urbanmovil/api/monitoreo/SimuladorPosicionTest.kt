@@ -95,4 +95,30 @@ class SimuladorPosicionTest {
         val quieto = listOf(Punto(2.44, -76.6), Punto(2.44, -76.6))
         cerca(Punto(2.44, -76.6), SimuladorPosicion.posicion(quieto, inicio, inicio.plusSeconds(60), 18.0))
     }
+
+    // ---------- Contrato compartido con la web (simulador.test.ts) y la app (SimuladorRecorridoTest) ----------
+    // Mismo trazado, misma hora, mismos números: si este bloque cambia, hay que cambiar los tres.
+
+    private val trazadoContrato = listOf(
+        Punto(2.4419, -76.6066),
+        Punto(2.4440, -76.6050),
+        Punto(2.4462, -76.6031),
+        Punto(2.4490, -76.6010),
+        Punto(2.4510, -76.5990),
+    )
+
+    @Test
+    fun `contrato - longitud del trazado`() {
+        assertTrue(abs(SimuladorPosicion.longitudMetros(trazadoContrato) - 1319.9881103444893) < 1e-6)
+    }
+
+    @Test
+    fun `contrato - a los 90 s`() {
+        cerca(Punto(2.445065833931734, -76.60407950705896), SimuladorPosicion.posicion(trazadoContrato, inicio, inicio.plusSeconds(90), 18.0))
+    }
+
+    @Test
+    fun `contrato - a los 600 s ya dio la vuelta`() {
+        cerca(Punto(2.444453192996366, -76.6046086060486), SimuladorPosicion.posicion(trazadoContrato, inicio, inicio.plusSeconds(600), 18.0))
+    }
 }

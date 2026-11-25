@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App(esDebug = BuildConfig.DEBUG)
+            App(esDebug = BuildConfig.DEBUG, contenedor = AppContainer.para(BuildConfig.API_URL))
         }
     }
 }

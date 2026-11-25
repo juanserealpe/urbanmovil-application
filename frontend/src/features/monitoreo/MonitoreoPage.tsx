@@ -7,7 +7,8 @@ import { EncabezadoPagina } from '../../components/EncabezadoPagina';
 import { MapaBase } from '../../mapa/MapaBase';
 import type { LineaMapa, MapaBaseHandle, MarcadorMapa } from '../../mapa/tipos';
 import { formatearHora } from '../../utils/fechas';
-import { useMonitoreo, useTrazadosRutas } from './hooks';
+import { desfaseReloj, posicionesAnimadas } from './animacion';
+import { useAhora, useMonitoreo, useTrazadosRutas } from './hooks';
 import clases from './MonitoreoPage.module.css';
 
 const idMarcador = (recorridoId: number) => `bus-${recorridoId}`;
@@ -25,11 +26,21 @@ export function MonitoreoPage() {
     [rutas],
   );
 
+  // Entre consultas el bus se mueve solo: misma fórmula que el servidor, con su reloj (desfase corregido).
+  const ahoraLocal = useAhora();
+  const desfase = desfaseReloj(consulta.data?.generadoEn, consulta.dataUpdatedAt);
+  const trazadosPorRuta = useMemo(() => new Map(rutas.map((r) => [r.id, r.recorridoPrincipal])), [rutas]);
+  const velocidadKmh = consulta.data?.velocidadKmh ?? 0;
+  const posiciones = useMemo(
+    () => posicionesAnimadas(buses, trazadosPorRuta, velocidadKmh, ahoraLocal + desfase),
+    [buses, trazadosPorRuta, velocidadKmh, ahoraLocal, desfase],
+  );
+
   const marcadores = useMemo<MarcadorMapa[]>(
     () =>
       buses.map((b) => ({
         id: idMarcador(b.recorridoId),
-        punto: b.posicion,
+        punto: posiciones.get(b.recorridoId) ?? b.posicion,
         tipo: 'bus',
         color: b.ruta.color,
         // Estable entre consultas: si cambiara, el marcador se recrearía en vez de moverse.
@@ -44,7 +55,7 @@ export function MonitoreoPage() {
           ],
         },
       })),
-    [buses],
+    [buses, posiciones],
   );
 
   // Encuadre a todos los trazados la primera vez que están todos cargados; después, el usuario manda.

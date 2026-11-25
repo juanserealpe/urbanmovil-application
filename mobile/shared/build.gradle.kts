@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -33,6 +34,8 @@ kotlin {
             implementation(libs.compose.uiTooling)
             // Motor de render nativo de MapLibre para Android (misma versión que maplibre-compose).
             runtimeOnly(libs.maplibre.runtimeOpenglAndroid)
+            // Motor HTTP de Ktor en Android (el cliente lo descubre solo en el classpath).
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -47,10 +50,16 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
             implementation(libs.maplibre.compose)
+            // Datos del backend (rutas y buses públicos).
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.contentNegotiation)
+            implementation(libs.ktor.serialization.kotlinxJson)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
         }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.testRunner)

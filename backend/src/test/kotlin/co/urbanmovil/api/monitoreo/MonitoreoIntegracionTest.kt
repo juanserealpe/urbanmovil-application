@@ -72,6 +72,9 @@ class MonitoreoIntegracionTest : OperacionTest() {
             jsonPath("$.buses[0].posicion.lat") { value(2.4419) }
             jsonPath("$.buses[0].posicion.lng") { value(-76.6066) }
             jsonPath("$.buses[0].horaPosicion") { value(org.hamcrest.Matchers.startsWith("2026-11-24T10:00")) }
+            // Para que el panel anime el bus entre consultas sin pedirle la posición al servidor.
+            jsonPath("$.buses[0].inicio") { value(org.hamcrest.Matchers.startsWith("2026-11-24T10:00:00")) }
+            jsonPath("$.velocidadKmh") { value(18.0) }
             jsonPath("$.buses[1].recorridoId") { value(segundo) }
             jsonPath("$.buses[1].posicion.lat") { value(2.43) }
         }
